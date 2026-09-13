@@ -12,7 +12,7 @@ resources:
 - repo: self
 
 variables:
-  dockerRegistryServiceConnection: 'ACR-External'  # Replace with your actual service connection name
+  dockerRegistryServiceConnection: 'jainazurecicd'  # Replace with your actual service connection name
   imageRepository: 'resultapp'
   containerRegistry: 'jainazurecicd.azurecr.io'    # Fixed typo: 'ainazurecicd' → 'jainazurecicd'
   dockerfilePath: '$(Build.SourcesDirectory)/result/Dockerfile'  # Removed extra single quote
