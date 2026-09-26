@@ -6,34 +6,52 @@ trigger:
 - main
 
 resources:
-- repo: self
+ paths:
+   include:
+     - result/*
+    
 
 variables:
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: 'c97543fa-2456-4660-b63c-d01b061f721a'
-  imageRepository: 'votingapp'
+  imageRepository: 'resultapp'
   containerRegistry: 'jainazurecicd.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/result/Dockerfile'
   tag: '$(Build.BuildId)'
 
   # Agent VM image name
-  vmImageName: 'ubuntu-latest'
+  vmImageName: 'Default'
 
 stages:
 - stage: Build
-  displayName: Build and push stage
+  displayName: Build
   jobs:
   - job: Build
-    displayName: Build
-    pool:
-      vmImage: $(vmImageName)
+    displayName: Build    
     steps:
     - task: Docker@2
-      displayName: Build and push an image to container registry
+      displayName: Build an image to container registry
       inputs:
-        command: buildAndPush
+        command: 'build'
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+
+- stage: Push
+  displayName: Push
+  jobs:
+  - job: Push
+    displayName: Push    
+    steps:
+    - task: Docker@2
+      displayName: Push an image to the container registry
+      inputs:
+        command: 'push'
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+
