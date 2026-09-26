@@ -28,8 +28,7 @@ stages:
   jobs:
   - job: Build
     displayName: Build
-    pool:
-      vmImage: $(vmImageName)
+    
     steps:
     - task: Docker@2
       displayName: Build image
@@ -45,8 +44,7 @@ stages:
   jobs:
   - job: Push
     displayName: Push
-    pool:
-      vmImage: $(vmImageName)
+    
     steps:
     - task: Docker@2
       displayName: Push image
