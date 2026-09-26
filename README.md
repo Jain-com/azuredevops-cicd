@@ -4,9 +4,10 @@ This project demonstrates a production-grade CI/CD and GitOps pipeline automatin
 
 ---
 
-## 🏗️ Architecture & Workflow
+# 🏗️ Architecture & Workflow
 
-https://github.com/dockersamples/example-voting-app/blob/main/architecture.excalidraw.png
+<img width="860" height="800" alt="image" src="https://github.com/user-attachments/assets/6e7b53cb-6413-46f7-9f72-7448f8f52d36" />
+
 
 1. **Source Code Management:** Application code and Kubernetes configuration files are maintained in version control repositories.
 2. **Continuous Integration (CI):** 
@@ -47,5 +48,82 @@ ArgoCD
 <img width="1913" height="993" alt="Screenshot 2026-09-26 224938" src="https://github.com/user-attachments/assets/ff1e340a-3083-40ad-896f-475e6b3c6a0a" />
 
 
+-----
+
+# 🛠️ Project Command Reference Guide
+
+Here is the complete sequence of terminal commands used during the setup, configuration, and troubleshooting of this end-to-end Azure DevOps CI/CD & Argo CD GitOps pipeline.
+
+## 1. Connect to Azure Kubernetes Service (AKS)
+```bash
+# Get credentials for the AKS cluster to configure kubectl access
+az aks get-credentials --name azuredevops --overwrite-existing --resource-group test-rg
+
+# Verify node status
+kubectl get nodes -o wide
+```
+-------------------
+
+2. Install and Configure Argo CD
+Bash
+# Create the Argo CD namespace
+kubectl create namespace argocd
+
+# Install Argo CD manifests onto the cluster
+kubectl apply -n argocd --server-side --force-conflicts -f [https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml](https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml)
+
+# Check Argo CD pod status
+kubectl get pods -n argocd
+
+# Retrieve the initial auto-generated admin password for Argo CD
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
+
+# Expose the Argo CD server service (e.g., changing type to NodePort or LoadBalancer)
+kubectl edit svc argocd-server -n argocd
+kubectl get svc -n argocd
+
+----------------------
+
+3. Clone Sample Application Source Code
+Bash
+# Clone the example voting application repository
+git clone [https://github.com/dockersamples/example-voting-app.git](https://github.com/dockersamples/example-voting-app.git)
+cd example-voting-app/
+
+--------------------------
+
+4. Kubernetes Secret for Azure Container Registry (ACR)
+Bash
+# Create a Kubernetes secret to allow AKS to pull images from private ACR
+kubectl create secret docker-registry acr-secret \
+  --namespace default \
+  --docker-server=jainazurecicd.azurecr.io \
+  --docker-username=jainazurecicd \
+  --docker-password=<your-acr-password-here>
+
+  ------------------------
+
+  5. WSL Agent & Script Troubleshooting
+Bash
+# Fix Windows line ending (CRLF to LF) conflicts for shell scripts on Linux/WSL agents
+dos2unix /home/jain/myagent/_work/2/s/scripts/updateK8Manifest.sh
+sed -i -e 's/\r$//' /home/jain/myagent/_work/2/s/scripts/updateK8Manifest.sh
+
+# Check files and contents in the agent's script directory
+ls /home/jain/myagent/_work/2/s/scripts
+
+----------------------
+
+6. Cluster Diagnostics & Pod Monitoring
+Bash
+# Monitor pods dynamically
+kubectl get pods -w
+
+# Delete a specific pod to force a restart/sync test
+kubectl delete pod vote-<pod-hash-id>
+
+# Inspect deployment manifests and cluster node configurations
+kubectl get deploy vote -o yaml
+kubectl get nodes -o yaml
 
 
