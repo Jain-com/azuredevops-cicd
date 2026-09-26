@@ -16,7 +16,7 @@ git config user.email "pipeline@azuredevops.com"
 git config user.name "Azure Pipeline Agent"
 
 # Make changes to the Kubernetes manifest file(s)
-sed -i "s|image:.*|image: jainazurecicd/$2:$3|g" k8s-specifications/$1-deployment.yaml
+sed -i "s|image:.*|image: jainazurecicd.azurecr.io/$2:$3|g" k8s-specifications/$1-deployment.yaml
 
 # Add the modified files
 git add k8s-specifications/$1-deployment.yaml
