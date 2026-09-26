@@ -51,8 +51,7 @@ stages:
       inputs:
         containerRegistry: '$(dockerRegistryServiceConnection)'
         repository: '$(imageRepository)'
-        command: 'push'
-        Dockerfile: 'vote/Dockerfile'
+        command: 'push'        
         tags: '$(tag)'
 
 - stage: update
@@ -61,6 +60,14 @@ stages:
   - job: Update
     displayName: Update
     steps:
+      - task: Bash@3
+        displayName: 'Sanitize script line endings'
+        inputs:
+          targetType: 'inline'
+          script: |
+           sed -i -e 's/\r$//' scripts/updateK8Manifest.sh
+           chmod +x scripts/updateK8Manifest.sh
+
       - task: ShellScript@2
         inputs:
          scriptPath: 'scripts/updateK8Manifest.sh'
